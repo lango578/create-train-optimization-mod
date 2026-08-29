@@ -1,0 +1,32 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+issueTrackerURL="https://github.com/lango578/Create-Train/issues"
+license="MIT"
+
+[[mods]]
+modId="createtrain_optimization"
+version="1.0.0-1.21.1"
+displayName="Create Train Exclusive Optimization Engine"
+authors="Create Train Modpack Team"
+description='''
+Exclusive NeoForge 1.21.1 performance optimization mod for Create Train Neo modpack.
+Features:
+- Thread-safe ReentrantReadWriteLock protection for Sable physics engine (fixes Index -1 rehash crash).
+- Safe multithreaded Chunk I/O and Entity/Mechanical Ticking acceleration.
+- Fully compatible with Create, Aeronautics, TaCZ, and Ars Nouveau.
+'''
+
+[[dependencies.createtrain_optimization]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.createtrain_optimization]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+

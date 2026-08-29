@@ -1,0 +1,7 @@
+bin/
+bin2/
+javac_args*.txt
+*.class
+.DS_Store
+.idea/
+*.iml

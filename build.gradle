@@ -1,0 +1,42 @@
+plugins {
+    id 'net.neoforged.moddev' version '2.0.75-beta'
+}
+
+group = 'com.createtrain.optimization'
+version = '1.0.0-1.21.1'
+
+base {
+    archivesName = 'createtrain_optimization'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = '21.1.81'
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+
+    mods {
+        createtrain_optimization {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}

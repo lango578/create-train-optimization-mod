@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.createtrain.optimization.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "SablePhysicsThreadSafetyMixin",
+    "ChunkIOAsyncSaverMixin",
+    "ConcurrentChunkLoaderMixin",
+    "MultithreadedEntityTickerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
