@@ -75,6 +75,10 @@ public class PerformanceHudOverlay {
     private static long totalVramBytes = 0;
     private static long usedVramBytes = 0;
 
+    // ============ System physical memory (matches Task Manager) ============
+    private static long sysTotalMem = 0;
+    private static long sysUsedMem = 0;
+
     /** A HUD text line with an optional progress bar (barPercent in 0..100, or -1 = no bar). */
     private static final class HudLine {
         final String text;
@@ -212,6 +216,36 @@ public class PerformanceHudOverlay {
         logDebug("GPU PDH: utilization=" + String.format("%.1f", cachedGpuUtilization));
     }
 
+    /** Refresh system physical memory usage (Task Manager compatible).
+     *  Falls back to the JVM heap if the com.sun.management API is unavailable. */
+    private static void collectSystemMemory() {
+        if (osBeanFailed) return;
+        if (osBean == null) {
+            try {
+                osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            } catch (Throwable t) {
+                osBeanFailed = true;
+                return;
+            }
+        }
+        try {
+            long total = osBean.getTotalMemorySize();
+            long free = osBean.getFreeMemorySize();
+            if (total > 0) {
+                sysTotalMem = total;
+                sysUsedMem = total - free;
+            }
+        } catch (Throwable t) {
+            Runtime r = Runtime.getRuntime();
+            long used = r.totalMemory() - r.freeMemory();
+            long max = r.maxMemory();
+            if (max > 0) {
+                sysTotalMem = max;
+                sysUsedMem = used;
+            }
+        }
+    }
+
     /** Read total VRAM from registry (qwMemorySize) and add Dedicated Usage counter. */
     private static void initGpuVram() {
         if (gpuVramFailed) return;
@@ -291,6 +325,7 @@ public class PerformanceHudOverlay {
             lastCpuCheckTime = now;
             collectGpuUtilization();
             collectGpuVram();
+            collectSystemMemory();
         }
 
         if (cachedGpuRenderer == null) {
@@ -302,13 +337,8 @@ public class PerformanceHudOverlay {
             }
         }
 
-        // Memory calculations
-        Runtime runtime = Runtime.getRuntime();
-        long totalMemory = runtime.totalMemory();
-        long freeMemory = runtime.freeMemory();
-        long usedMemory = totalMemory - freeMemory;
-        long maxMemory = runtime.maxMemory();
-        double ramPercent = (double) usedMemory / maxMemory * 100.0;
+        // Memory (system physical RAM, matches Task Manager)
+        double ramPercent = (sysTotalMem > 0) ? (double) sysUsedMem / sysTotalMem * 100.0 : 0.0;
 
         // Collect HUD Info Lines (with optional progress bars)
         List<HudLine> lines = new ArrayList<>();
@@ -331,7 +361,7 @@ public class PerformanceHudOverlay {
             String ramColor = ramPercent < 75 ? "§a" : (ramPercent < 90 ? "§e" : "§c");
             lines.add(new HudLine(
                     String.format("§7内存占用: %s%.1f%% §7(%dMB / %dMB)",
-                            ramColor, ramPercent, usedMemory / 1048576, maxMemory / 1048576),
+                            ramColor, ramPercent, sysUsedMem / 1048576, sysTotalMem / 1048576),
                     ModConfig.showBars ? ramPercent : -1.0, barColor(ramPercent)));
         }
 
